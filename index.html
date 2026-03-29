@@ -177,7 +177,7 @@
 
 <div class="viewer-wrap" id="viewerWrap" style="display:none;">
   <div class="viewer-inner">
-    <video id="videoEl" playsinline loop></video>
+    <video id="videoEl" playsinline></video>
     <img id="overlayImg" alt="" style="display:none;">
   </div>
   <div class="video-controls">
@@ -237,7 +237,6 @@
     if (videoObjectURL) URL.revokeObjectURL(videoObjectURL);
     videoObjectURL = URL.createObjectURL(file);
     videoEl.src = videoObjectURL;
-    videoEl.loop = true;
     videoEl.play();
     uploadArea.style.display = 'none';
     viewerWrap.style.display = 'block';
@@ -293,6 +292,12 @@
     uploadArea.style.display = 'block';
     viewerWrap.style.display = 'none';
     fileInput.value = '';
+  });
+
+  // Instant loop via ended event
+  videoEl.addEventListener('ended', () => {
+    videoEl.currentTime = 0;
+    videoEl.play();
   });
 
   // Spacebar to play/pause
