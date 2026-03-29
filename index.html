@@ -78,11 +78,10 @@
     line-height: 0;
   }
 
-  /* Fixed display at 1080x1920 scaled down */
   .viewer-inner {
     position: relative;
-    width: 337.5px;  /* 1080 * 0.3125 */
-    height: 600px;   /* 1920 * 0.3125 */
+    width: 337.5px;
+    height: 600px;
     background: #000;
     overflow: hidden;
     border-radius: 4px;
@@ -104,7 +103,6 @@
     object-fit: fill;
     pointer-events: none;
     opacity: 0.55;
-    mix-blend-mode: normal;
     transition: opacity 0.2s;
   }
 
@@ -137,24 +135,18 @@
   }
   .vid-btn:hover { background: #3a3a60; border-color: #f0e040; color: #f0e040; }
 
-  .placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #444;
-    font-size: 0.9rem;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .placeholder .big { font-size: 2rem; }
-
   .info {
     margin-top: 16px;
     font-size: 0.75rem;
     color: #555;
     text-align: center;
+    line-height: 1.6;
+  }
+  .info code {
+    background: #2a2a4a;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #aaa;
   }
 </style>
 </head>
@@ -185,8 +177,8 @@
 
 <div class="viewer-wrap" id="viewerWrap" style="display:none;">
   <div class="viewer-inner">
-    <video id="videoEl" playsinline></video>
-    <img id="overlayImg" src="" alt="safe zone overlay" style="display:none;">
+    <video id="videoEl" playsinline loop></video>
+    <img id="overlayImg" alt="" style="display:none;">
   </div>
   <div class="video-controls">
     <button class="vid-btn" id="playPauseBtn">⏸ Pause</button>
@@ -195,7 +187,7 @@
   </div>
 </div>
 
-<p class="info">and placed in the same folder as this HTML file. Name them: <code>universal.png</code>, <code>youtube.png</code>, <code>tiktok.png</code>, <code>instagram.png</code></p>
+
 
 <script>
   const fileInput = document.getElementById('fileInput');
@@ -209,7 +201,6 @@
   const opacitySlider = document.getElementById('opacitySlider');
   const opacityVal = document.getElementById('opacityVal');
 
-  // Map platform keys to image filenames
   const overlayMap = {
     universal: 'universal.png',
     youtube:   'youtube.png',
@@ -220,16 +211,24 @@
   let currentPlatform = 'universal';
   let videoObjectURL = null;
 
-  // Upload
+  // Upload — click
   uploadArea.addEventListener('click', () => fileInput.click());
-  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = '#f0e040'; });
-  uploadArea.addEventListener('dragleave', () => uploadArea.style.borderColor = '#444');
-  uploadArea.addEventListener('drop', e => {
+
+  // Upload — drag and drop
+  uploadArea.addEventListener('dragover', e => {
     e.preventDefault();
-    const f = e.dataTransfer.files[0];
-    if (f && f.type.startsWith('video/')) loadVideo(f);
+    uploadArea.style.borderColor = '#f0e040';
+  });
+  uploadArea.addEventListener('dragleave', () => {
     uploadArea.style.borderColor = '#444';
   });
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#444';
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('video/')) loadVideo(f);
+  });
+
   fileInput.addEventListener('change', () => {
     if (fileInput.files[0]) loadVideo(fileInput.files[0]);
   });
@@ -242,18 +241,17 @@
     videoEl.play();
     uploadArea.style.display = 'none';
     viewerWrap.style.display = 'block';
-    updateOverlay();
     playPauseBtn.textContent = '⏸ Pause';
+    updateOverlay();
   }
 
   // Platform buttons
   document.getElementById('platformBtns').addEventListener('click', e => {
     const btn = e.target.closest('.platform-btn');
     if (!btn) return;
-    const platform = btn.dataset.platform;
+    currentPlatform = btn.dataset.platform;
     document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    currentPlatform = platform;
     updateOverlay();
   });
 
@@ -266,7 +264,7 @@
     }
   }
 
-  // Opacity
+  // Opacity slider
   opacitySlider.addEventListener('input', () => {
     const v = opacitySlider.value;
     opacityVal.textContent = v + '%';
@@ -275,8 +273,13 @@
 
   // Video controls
   playPauseBtn.addEventListener('click', () => {
-    if (videoEl.paused) { videoEl.play(); playPauseBtn.textContent = '⏸ Pause'; }
-    else { videoEl.pause(); playPauseBtn.textContent = '▶ Play'; }
+    if (videoEl.paused) {
+      videoEl.play();
+      playPauseBtn.textContent = '⏸ Pause';
+    } else {
+      videoEl.pause();
+      playPauseBtn.textContent = '▶ Play';
+    }
   });
 
   muteBtn.addEventListener('click', () => {
@@ -292,7 +295,7 @@
     fileInput.value = '';
   });
 
-  // Keyboard shortcuts
+  // Spacebar to play/pause
   document.addEventListener('keydown', e => {
     if (e.code === 'Space' && videoEl.src) {
       e.preventDefault();
