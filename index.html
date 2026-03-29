@@ -163,8 +163,8 @@
 <h1>📐 Social Safe Zone Viewer</h1>
 
 <div class="controls" id="platformBtns">
-  <button class="platform-btn none-btn active" data-platform="none">✕ No Overlay</button>
-  <button class="platform-btn" data-platform="universal">🌐 Universal</button>
+  <button class="platform-btn none-btn" data-platform="none">✕ No Overlay</button>
+  <button class="platform-btn active" data-platform="universal">🌐 Universal</button>
   <button class="platform-btn" data-platform="youtube">▶ YouTube Shorts</button>
   <button class="platform-btn" data-platform="tiktok">♪ TikTok</button>
   <button class="platform-btn" data-platform="instagram">📷 Instagram</button>
@@ -217,7 +217,7 @@
     instagram: 'instagram.png',
   };
 
-  let currentPlatform = 'none';
+  let currentPlatform = 'universal';
   let videoObjectURL = null;
 
   // Upload
@@ -238,6 +238,7 @@
     if (videoObjectURL) URL.revokeObjectURL(videoObjectURL);
     videoObjectURL = URL.createObjectURL(file);
     videoEl.src = videoObjectURL;
+    videoEl.loop = true;
     videoEl.play();
     uploadArea.style.display = 'none';
     viewerWrap.style.display = 'block';
